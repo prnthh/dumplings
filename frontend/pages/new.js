@@ -81,7 +81,6 @@ export default function Home() {
 
     let name = await instance.methods.lendFunds(2592000).send({
       from: address,
-      value: 10000000,
     }); // call();
     console.log(name);
   }

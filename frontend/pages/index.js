@@ -1,82 +1,85 @@
 import Image from "next/image";
-import { useCelo } from "@celo/react-celo";
-import { useEffect, useState } from "react";
+import ConnectButton from "@/components/ConnectButton";
+import Logo from "../static/logo.png";
+
 export default function Home() {
-  const { connect, address } = useCelo();
-  const [loaded, isLoaded] = useState(false);
-
-  async function hack() {
-    kit.connection.addAccount(process.env.PRIVATE_KEY);
-    const address = privateKeyToAddress(process.env.PRIVATE_KEY);
-
-    // Encode the transaction to HelloWorld.sol according to the ABI
-    let txObject = await instance.methods.setName(newName);
-
-    // Send the transaction
-    let tx = await kit.sendTransactionObject(txObject, { from: address });
-
-    let receipt = await tx.waitReceipt();
-    console.log(receipt);
-  }
-  useEffect(() => {
-    if (!loaded) isLoaded(true);
-  }, []);
-
   return (
-    <main className="flex min-h-screen flex-col items-center p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by &nbsp;
-          <code className="font-mono font-bold">joining a pool</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center">
-          {loaded && address ? (
-            <div>Connected to {address}</div>
-          ) : (
-            <button onClick={connect}>Connect wallet</button>
-          )}{" "}
-        </div>
+    <main className="flex min-h-screen flex-col p-4">
+      <div className="flex row justify-end">
+        <ConnectButton />
       </div>
 
-      <div className="mb-32 grid text-center lg:mb-0 md:grid-cols-4 lg:text-left">
+      <div>
+        <img
+          style={{
+            position: "absolute",
+            right: 0,
+            top: 50,
+            zIndex: 0,
+            width: 300,
+          }}
+          src={Logo.src}
+        ></img>
+      </div>
+
+      <div
+        className="mb-32 grid text-center lg:mb-0 md:grid-cols-4 gap-2 text-left"
+        style={{ zIndex: 2 }}
+      >
         {["FSC Forest, Japan", "Pool 2", "Pool 3"].map((item, index) => (
           <a
-            href={`/pool?=${item}`}
-            className="group rounded-lg border border-transparent bg-[#121218] text-white px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
+            href={`/pool?=${index}`}
+            className="group rounded-lg border border-transparent bg-[#0f0f14] text-white px-3 py-4 transition-colors border-2 border-[#1c1c21] hover:border-[#00D2AF] hover:shadow-md shadow-[#3E4E51] transition-all"
             // target="_blank"
             rel="noopener noreferrer"
           >
-            <div className="text-left text-sm ">
-              <h2 className={`mb-3 text-2xl font-semibold`}>
-                {item}{" "}
-                <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+            <div className="text-left text-xs">
+              <h2 className={`mb-3 text-lg font-semibold`}>
+                {item}
+                {/* <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
                   -&gt;
-                </span>
+                </span> */}
               </h2>
               <p className="text-white/50">APY (%)</p>
-              <p className="text-lg">13.0%</p>
-              <div className="flex flex-row justify-between w-full">
+              <p className="text-lg pb-6">13.0%</p>
+              <div className="flex flex-row justify-between w-full py-1.5">
                 <p className="text-white/50">Total Value Locked</p>
                 <p>$11.3M</p>
               </div>
-              <div className="flex flex-row justify-between w-full">
+              <div className="flex flex-row justify-between w-full py-1.5">
                 <p className="text-white/50">Loan Duration</p>
                 <p>60d</p>
               </div>
-              <div className="flex flex-row justify-between w-full">
+              <div className="flex flex-row justify-between w-full py-1.5">
                 <p className="text-white/50">Credit Score</p>
                 <p>A</p>
+              </div>
+            </div>
+
+            <div className="bg-[#17171B] text-white/50 text-xs -mx-3 px-3 -mb-3 py-3 ">
+              <div className="flex flex-row justify-between w-full py-1.5">
+                <p>Capital Supplied</p>
+                <p className="text-white">11.3M</p>
+              </div>
+              <div className="w-full h-3 rounded-xl bg-[#212B31]">
+                <div className="w-5/12 h-full rounded bg-[#DEDEDE]"></div>
+              </div>
+              <div className="flex flex-row justify-between w-full py-1.5">
+                <p>Maximum Supply</p>
+                <p className="text-white">20M</p>
               </div>
             </div>
           </a>
         ))}
       </div>
 
-      <a href={"/new"}>
-        <button className="bg-transparent text-blue-500 hover:text-white rounded border border-blue-500 hover:bg-blue-500 py-2 px-3">
-          Create a new pool
-        </button>
-      </a>
+      <center>
+        <a href={"/new"}>
+          <button className="rounded-md flex h-14 w-48 bg-[#192125] items-center justify-center text-[#60CBB9] m-2">
+            Create a new pool
+          </button>
+        </a>
+      </center>
     </main>
   );
 }

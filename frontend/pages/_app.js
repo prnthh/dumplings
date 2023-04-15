@@ -15,7 +15,6 @@ export default function App({ Component, pageProps }) {
           url: "https://example.com",
         }}
       >
-        {" "}
         <Component {...pageProps} />
       </CeloProvider>
     </div>
