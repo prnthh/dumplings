@@ -5,6 +5,7 @@ const nextConfig = {
   env: {
     PRIVATE_KEY: process.env.PRIVATE_KEY,
   },
+  assetPrefix: "/dumplings/",
 };
 
 module.exports = nextConfig;
