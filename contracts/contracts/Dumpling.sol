@@ -8,16 +8,19 @@ contract Dumpling {
     mapping(address => uint256) private _balances;
     mapping(address => uint256) private _timestamps;
     IERC20 private _token;
+    address private _borrower;
     
     uint256 private constant _30_DAYS = 30 days;
     uint256 private constant _60_DAYS = 60 days;
     uint256 private constant _90_DAYS = 90 days;
     
     event FundsLent(address indexed lender, uint256 amount, uint256 duration);
-    event FundsWithdrawn(address indexed lender, uint256 amount);
+    event FundsWithdrawn(uint256 amount);
+    event FundsPulled(address indexed lender, uint256 amount);
     
-    constructor(address tokenAddress) {
+    constructor(address tokenAddress, address borrower) {
         _token = IERC20(tokenAddress);
+        _borrower = borrower;
     }
     
     function lendFunds(uint256 duration) external {
@@ -36,10 +39,16 @@ contract Dumpling {
         
         emit FundsLent(lender, amount, duration);
     }
+
+    function withdrawFunds(uint256 amount) external {
+        require(msg.sender == _borrower, "Only borrower can withdraw funds");
+        require(_token.transfer(_borrower, amount), "Token transfer failed");
+        emit FundsWithdrawn(amount);
+    }
     
-    function withdrawFunds() external {
+    function pullFunds() external {
         address lender = msg.sender;
-        require(_balances[lender] > 0, "No funds to withdraw");
+        require(_balances[lender] > 0, "No funds to pull");
         
         uint256 amount = calculateInterest(lender);
         require(amount > 0, "No interest accrued yet");
@@ -47,7 +56,7 @@ contract Dumpling {
         _balances[lender] = 0;
         require(_token.transfer(lender, amount), "Token transfer failed");
         
-        emit FundsWithdrawn(lender, amount);
+        emit FundsPulled(lender, amount);
     }
     
     function calculateInterest(address lender) private view returns(uint256) {
