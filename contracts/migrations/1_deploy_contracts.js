@@ -1,8 +1,14 @@
-const ConvertLib = artifacts.require("ConvertLib");
-const MetaCoin = artifacts.require("MetaCoin");
+const ERC20 = artifacts.require("ERC20");
+const Dumpling = artifacts.require("Dumpling");
 
-module.exports = function(deployer) {
-  deployer.deploy(ConvertLib);
-  deployer.link(ConvertLib, MetaCoin);
-  deployer.deploy(MetaCoin);
+const tokenName = "TT";
+const tokenSymbol = "TT";
+const tokenDecimals = "18";
+const tokenTotalSupply = "1000000000000000000000000000";
+
+module.exports = async function(deployer) {
+  deployer.then(async () => {
+    let erc20 = await deployer.deploy(ERC20, tokenName, tokenTotalSupply);
+    let dumpling = await deployer.deploy(Dumpling, erc20._address);
+  });
 };
