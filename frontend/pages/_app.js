@@ -1,32 +1,22 @@
 import "@/styles/globals.css";
-import {
-  EthereumClient,
-  w3mConnectors,
-  w3mProvider,
-} from "@web3modal/ethereum";
-import { Web3Modal } from "@web3modal/react";
-import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { arbitrum, celo, celoAlfajores, mainnet, polygon } from "wagmi/chains";
-
-const chains = [celoAlfajores, celo];
-const projectId = "YOUR_PROJECT_ID";
-
-const { provider } = configureChains(chains, [w3mProvider({ projectId })]);
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors: w3mConnectors({ projectId, version: 1, chains }),
-  provider,
-});
-const ethereumClient = new EthereumClient(wagmiClient, chains);
+import { CeloProvider } from "@celo/react-celo";
+import "@celo/react-celo/lib/styles.css";
+// pages/_app.js
+import { JetBrains_Mono } from "next/font/google";
+const jetBrains = JetBrains_Mono({ subsets: ["latin"] });
 
 export default function App({ Component, pageProps }) {
   return (
-    <>
-      <WagmiConfig client={wagmiClient}>
+    <div className={jetBrains.className}>
+      <CeloProvider
+        dapp={{
+          name: "My awesome dApp",
+          description: "My awesome description",
+          url: "https://example.com",
+        }}
+      >
         <Component {...pageProps} />
-      </WagmiConfig>
-
-      <Web3Modal projectId={projectId} ethereumClient={ethereumClient} />
-    </>
+      </CeloProvider>
+    </div>
   );
 }
