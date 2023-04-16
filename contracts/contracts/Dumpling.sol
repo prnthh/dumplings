@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
 contract Dumpling {
     mapping(address => uint256) private _balances;
     mapping(address => uint256) private _timestamps;
@@ -14,8 +17,13 @@ contract Dumpling {
     event FundsLent(address indexed lender, uint256 amount, uint256 duration);
     event FundsWithdrawn(uint256 amount);
     event FundsPulled(address indexed lender, uint256 amount);
+    
+    constructor(address tokenAddress, address borrower) {
+        _token = IERC20(tokenAddress);
+        _borrower = borrower;
+    }
 
-    function lendFunds(uint256 duration) external payable {
+    function lendFunds(uint256 duration) external {
         require(
             duration == _30_DAYS ||
                 duration == _60_DAYS ||
@@ -23,11 +31,13 @@ contract Dumpling {
             "Invalid duration"
         );
 
-        address payable lender = payable(msg.sender);
+        address lender = msg.sender;
         require(_balances[lender] == 0, "Existing position not yet finished");
 
-        uint256 amount = msg.value;
+        uint256 amount = _token.allowance(lender, address(this));
         require(amount > 0, "Amount must be greater than 0");
+
+        require(_token.transferFrom(lender, address(this), amount), "Token transfer failed");
 
         _balances[lender] += amount;
         _timestamps[lender] = block.timestamp;
@@ -35,17 +45,23 @@ contract Dumpling {
         emit FundsLent(lender, amount, duration);
     }
 
-    function withdrawFunds() external {
-        address payable lender = payable(msg.sender);
-        require(_balances[lender] > 0, "No funds to withdraw");
-
+    function withdrawFunds(uint256 amount) external {
+        require(msg.sender == _borrower, "Only borrower can withdraw funds");
+        require(_token.transfer(_borrower, amount), "Token transfer failed");
+        emit FundsWithdrawn(amount);
+    }
+    
+    function pullFunds() external {
+        address lender = msg.sender;
+        require(_balances[lender] > 0, "No funds to pull");
+        
         uint256 amount = calculateInterest(lender);
         require(amount > 0, "No interest accrued yet");
-
+        
         _balances[lender] = 0;
-        lender.transfer(amount);
-
-        emit FundsWithdrawn(lender, amount);
+        require(_token.transfer(lender, amount), "Token transfer failed");
+        
+        emit FundsPulled(lender, amount);
     }
 
     function calculateInterest(address lender) private view returns (uint256) {
